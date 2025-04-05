@@ -33,9 +33,9 @@ startCommand:
       - kakaoRestApiKey
   commandFunction: |-
     (config) => ({
-      "command": "ts-node",
+      "command": "node",
       "args": [
-        "src/index.ts"
+        "dist/index.js"
       ],
       "env": {
         "KAKAO_REST_API_KEY": config.kakaoRestApiKey
