@@ -21,7 +21,7 @@ const server = new McpServer({
 
 // Register tools
 server.tool(
-  "direction_search_by_coordinates",
+  "direction_search_by_coords",
   "Search for directions between two points using their coordinates (longitude and latitude). This tool provides navigation information including distance, duration, and route details.",
   directionSearchByCoordinatesSchema,
   directionSearchByCoordinatesHandler
@@ -49,7 +49,7 @@ server.tool(
 );
 
 server.tool(
-  "future_direction_search_by_coordinates",
+  "future_direction_search_by_coords",
   "Search for directions with future departure time. Provides navigation information considering traffic predictions for a specific future time. Supports various options like waypoints, route preferences, and vehicle details.",
   futureDirectionSearchByCoordinatesSchema,
   futureDirectionSearchByCoordinatesHandler
