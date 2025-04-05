@@ -33,6 +33,7 @@
 - `geocode`: 주소를 좌표 정보로 지오코딩
 - `direction_search_by_names`: 출발지와 목적지 주소로 길찾기
 - `direction_search_by_coordinates`: 출발지와 목적지 좌표로 길찾기
+- `address_search_by_place_name`: 장소 이름으로 주소 찾기
 
 ## 배포 정보
 
