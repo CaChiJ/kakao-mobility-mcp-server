@@ -15,6 +15,7 @@ const server = new McpServer({
 
 server.tool(
   "direction_search_by_coordinates",
+  "Search for directions between two points using their coordinates (longitude and latitude). This tool provides navigation information including distance, duration, and route details.",
   {
     originLongitude: z.number(),
     originLatitude: z.number(),
@@ -57,6 +58,7 @@ server.tool(
 
 server.tool(
   "direction_search_by_address",
+  "Search for directions between two locations using their addresses. The tool first geocodes the addresses to coordinates, then finds the optimal route between them.",
   {
     originAddress: z.string(),
     destAddress: z.string(),
@@ -157,6 +159,7 @@ server.tool(
 
 server.tool(
   "address_search_by_place_name",
+  "Search for addresses using a place name or keyword. Returns detailed location information including coordinates and address details.",
   {
     placeName: z.string(),
   },
@@ -185,6 +188,7 @@ server.tool(
 
 server.tool(
   "geocode",
+  "Convert an address into geographic coordinates (geocoding). Returns the exact location coordinates and address details for the given place name.",
   {
     placeName: z.string(),
   },
@@ -213,6 +217,7 @@ server.tool(
 
 server.tool(
   "future_direction_search_by_coordinates",
+  "Search for directions with future departure time. Provides navigation information considering traffic predictions for a specific future time. Supports various options like waypoints, route preferences, and vehicle details.",
   {
     originLatitude: z.number(),
     originLongitude: z.number(),
