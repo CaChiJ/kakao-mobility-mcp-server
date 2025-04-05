@@ -1,38 +1,52 @@
-name: kakao-mobility-mcp-server
-version: 1.0.0
-description: Kakao Mobility API를 사용하는 MCP 서버
+apiVersion: v1
+kind: Application
+metadata:
+  name: kakao-mobility-mcp-server
+  version: 1.0.0
+  description: Kakao Mobility API를 사용하는 MCP 서버
 
-build:
-  type: docker
-  dockerfile: Dockerfile
-  context: .
+spec:
+  build:
+    type: docker
+    dockerfile: Dockerfile
+    context: .
 
-env:
-  - name: KAKAO_REST_API_KEY
-    required: true
-    description: 카카오 REST API 키
+  runtime:
+    type: node
+    version: "18"
 
-ports:
-  - port: 3000
-    protocol: tcp
-    description: MCP 서버 포트
+  env:
+    - name: KAKAO_REST_API_KEY
+      required: true
+      description: 카카오 REST API 키
 
-health:
-  type: http
-  path: /health
-  port: 3000
-  interval: 30s
-  timeout: 5s
+  network:
+    ports:
+      - port: 3000
+        protocol: TCP
+        description: MCP 서버 포트
 
-resources:
-  limits:
-    cpu: "1"
-    memory: "512Mi"
-  requests:
-    cpu: "0.5"
-    memory: "256Mi"
+  health:
+    type: http
+    endpoint: /health
+    port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
 
-scaling:
-  min: 1
-  max: 3
-  targetCPUUtilizationPercentage: 80 
+  resources:
+    limits:
+      cpu: "1"
+      memory: "512Mi"
+    requests:
+      cpu: "0.5"
+      memory: "256Mi"
+
+  scaling:
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+
+  security:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true 
