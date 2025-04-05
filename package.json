@@ -1,33 +1,30 @@
 {
-  "name": "kakao-mobility-mcp",
+  "name": "traffic-data-mcp-server",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js"
   },
-  "keywords": [
-    "kakao",
-    "mobility",
-    "mcp",
-    "directions",
-    "transit"
-  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CaChiJ/traffic-data-mcp-server.git"
+  },
   "author": "",
   "license": "ISC",
-  "description": "Kakao Mobility MCP Server for directions and transit information",
+  "bugs": {
+    "url": "https://github.com/CaChiJ/traffic-data-mcp-server/issues"
+  },
+  "homepage": "https://github.com/CaChiJ/traffic-data-mcp-server#readme",
+  "description": "",
   "dependencies": {
-    "@types/express": "^5.0.1",
-    "@types/node": "^20.11.25",
-    "axios": "^1.6.7",
-    "dotenv": "^16.4.5",
-    "express": "^5.1.0",
-    "typescript": "^5.4.2"
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
-    "ts-node": "^10.9.2"
+    "@types/node": "^22.14.0",
+    "typescript": "^5.8.3"
   }
 }

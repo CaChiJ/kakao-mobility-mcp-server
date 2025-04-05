@@ -1,6 +1,6 @@
 app:
   name: kakao-mobility-mcp-server
-  version: 1.0.0
+  version: 1.0.1
 
 build:
   type: docker
@@ -21,7 +21,6 @@ deploy:
     memory: 512
     cpu: 1 
 
-# Smithery.ai configuration
 startCommand:
   type: stdio
   configSchema:

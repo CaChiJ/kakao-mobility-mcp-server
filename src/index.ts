@@ -1,128 +1,173 @@
-import express, { Request, Response, RequestHandler } from 'express';
+import {
+  McpServer,
+  ResourceTemplate,
+} from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
 import dotenv from 'dotenv';
-import { KakaoMobilityClient } from './services/kakaoClient';
-import { Coordinates, CarRouteParams, FutureRouteParams } from './types';
-
 dotenv.config();
 
-const app = express();
-app.use(express.json());
+// Create an MCP server
+const server = new McpServer({
+  name: "Demo",
+  version: "1.0.0",
+});
 
-const apiKey = process.env.KAKAO_REST_API_KEY;
-if (!apiKey) {
-  console.error('KAKAO_REST_API_KEY is not set in the environment variables.');
-  process.exit(1);
-}
 
-const kakaoClient = new KakaoMobilityClient(apiKey);
+server.tool(
+  "direction_search_by_coordinates",
+  {
+    originLongitude: z.number(),
+    originLatitude: z.number(),
 
-// Utility function to convert location string (address or "lon,lat") to Coordinates
-async function convertToCoords(location: string): Promise<Coordinates> {
-  if (location.includes(',')) {
-    const [lon, lat] = location.split(',').map(parseFloat);
-    if (!isNaN(lon) && !isNaN(lat)) {
-      return { longitude: lon, latitude: lat };
-    }
-  }
-  const coords = await kakaoClient.searchAddress(location);
-  if (!coords) {
-    throw new Error(`주소를 찾을 수 없습니다: ${location}`);
-  }
-  return coords;
-}
-
-// 자동차 길찾기 엔드포인트
-const carRouteHandler: RequestHandler = async (req, res) => {
-  try {
-    const { origin, destination, waypoints, priority, carFuel, carHipass } = req.body;
-
-    if (!origin || !destination) {
-       res.status(400).json({ error: 'origin and destination are required' });
-       return;
-    }
-
-    const originCoords = await convertToCoords(origin as string);
-    const destCoords = await convertToCoords(destination as string);
-    let waypointCoords: Coordinates[] | undefined = undefined;
-    if (waypoints && Array.isArray(waypoints)) {
-      waypointCoords = await Promise.all((waypoints as string[]).map(wp => convertToCoords(wp)));
-    }
-
-    const params: CarRouteParams = {
-      origin: originCoords,
-      destination: destCoords,
-      waypoints: waypointCoords,
-      priority,
-      carFuel,
-      carHipass
-    };
-
-    const result = await kakaoClient.findCarRoute(params);
-    // 성공 응답과 오류 응답을 구분하여 처리
-    if ('summary' in result) {
-        res.json(result);
-    } else {
-        res.status(404).json(result); // NO_ROUTE 등의 상태
-    }
-  } catch (error: any) {
-     console.error('Car route error:', error);
-      if (error.message.includes('주소를 찾을 수 없습니다')) {
-        res.status(400).json({ error: error.message });
-        return;
-      } else {
-         res.status(500).json({ error: 'Failed to find car route' });
-         return;
+    destLongitude: z.number(),
+    destLatitude: z.number(),
+  },
+  async ({
+    originLongitude,
+    originLatitude,
+    destLongitude,
+    destLatitude,
+  }: {
+    originLongitude: number;
+    originLatitude: number;
+    destLongitude: number;
+    destLatitude: number;
+  }) => {
+    const response = await fetch(
+      `https://apis-navi.kakaomobility.com/v1/directions?origin=${originLongitude},${originLatitude}&destination=${destLongitude},${destLatitude}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `KakaoAK ${process.env.KAKAO_REST_API_KEY}`,
+        },
       }
+    );
+
+    const data = await response.json();
+    return data;
   }
-};
-app.post('/mcp_kakao_mobility_car_route', carRouteHandler);
+);
 
-// 미래 운행 정보 길찾기 엔드포인트
-const futureRouteHandler: RequestHandler = async (req, res) => {
-  try {
-    const { origin, destination, departureTime, priority, carFuel, carHipass, predictionType, alternatives } = req.body;
 
-    if (!origin || !destination || !departureTime) {
-       res.status(400).json({ error: 'origin, destination, and departureTime are required' });
-       return;
+
+
+server.tool(
+  "direction_search_by_names",
+  {
+    originAddress: z.string(),
+    destAddress: z.string()
+  },
+  async ({
+    originAddress,
+    destAddress
+  }: {
+    originAddress: string;
+    destAddress: string;
+  }) => {
+    const [originResult, destResult]: [any, any] = await Promise.all([
+      (async () => {
+        const response = await fetch(`https://dapi.kakao.com/v2/local/search/address?query=${originAddress}`, 
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `KakaoAK ${process.env.KAKAO_REST_API_KEY}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error(`Kakao geocode API request failed for origin: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data;
+      })(),
+      (async () => {
+        const response = await fetch(`https://dapi.kakao.com/v2/local/search/address?query=${destAddress}`, 
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `KakaoAK ${process.env.KAKAO_REST_API_KEY}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error(`Kakao geocode API request failed for destination: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data;
+      })()
+    ]);
+
+    // Add basic error handling for geocoding results
+    if (!originResult?.documents?.[0]?.x || !originResult?.documents?.[0]?.y ||
+        !destResult?.documents?.[0]?.x || !destResult?.documents?.[0]?.y) {
+      // Consider returning a more informative error structure for MCP
+      return { error: "Geocoding failed or returned incomplete data for one or both locations." };
     }
 
-    const originCoords = await convertToCoords(origin as string);
-    const destCoords = await convertToCoords(destination as string);
+    const originLongitude = originResult.documents[0].x;
+    const originLatitude = originResult.documents[0].y;
+    const destLongitude = destResult.documents[0].x;
+    const destLatitude = destResult.documents[0].y;
 
-    const params: FutureRouteParams = {
-      origin: originCoords,
-      destination: destCoords,
-      departureTime: departureTime as string,
-      priority,
-      carFuel,
-      carHipass,
-      predictionType,
-      alternatives
-    };
+    const response = await fetch(
+      `https://apis-navi.kakaomobility.com/v1/directions?origin=${originLongitude},${originLatitude}&destination=${destLongitude},${destLatitude}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `KakaoAK ${process.env.KAKAO_REST_API_KEY}`,
+        },
+      }
+    );
 
-    const result = await kakaoClient.findFutureRoute(params);
-    // 성공 응답과 오류 응답을 구분하여 처리
-    if ('summary' in result) {
-        res.json(result);
-    } else {
-        res.status(500).json(result); // Future API 오류
-    }
-
-  } catch (error: any) {
-    console.error('Future route error:', error);
-    if (error.message.includes('주소를 찾을 수 없습니다')) {
-      res.status(400).json({ error: error.message });
-      return;
-    } else {
-      res.status(500).json({ error: 'Failed to find future route' });
-      return;
-    }
+    const data = await response.json();
+    return data;
   }
-};
-app.post('/mcp_kakao_mobility_future_route', futureRouteHandler);
+);
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-}); 
+
+server.tool(
+  "geocode",
+  {
+    placeName: z.string(),
+  },
+  async ({ placeName }: { placeName: string }) => {
+    const response = await fetch(`https://dapi.kakao.com/v2/local/search/address?query=${placeName}`, 
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `KakaoAK ${process.env.KAKAO_REST_API_KEY}`,
+        },
+      }
+    );
+    const data = await response.json();
+    return data;
+  }
+);
+
+
+
+// Add a dynamic greeting resource
+server.resource(
+  "greeting",
+  new ResourceTemplate("greeting://{name}", { list: undefined }),
+  async (uri: URL, variables: Record<string, any>) => ({
+    contents: [
+      {
+        uri: uri.href,
+        text: `Hello, ${variables.name}!`,
+      },
+    ],
+  })
+);
+
+// Start receiving messages on stdin and sending messages on stdout
+(async () => {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+})();
