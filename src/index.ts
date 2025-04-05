@@ -50,13 +50,14 @@ app.post('/mcp_kakao_mobility_transit', async (req, res) => {
 export const handlers = {
   async mcp_kakao_mobility_car_route(params: any) {
     try {
-      const { origin, destination, priority = 'TIME', carFuel = 'GASOLINE', carHipass = true } = params;
+      const { origin, destination, waypoints = [], priority = 'TIME', carFuel = 'GASOLINE', carHipass = true } = params;
       
       // 주소가 이미 좌표 형식인지 확인
       const isCoordinates = (str: string) => /^\d+(\.\d+)?(,\d+(\.\d+)?)+$/.test(str);
       
       let originCoords;
       let destCoords;
+      let waypointCoords = [];
 
       // 주소인 경우 좌표로 변환
       if (!isCoordinates(origin)) {
@@ -91,9 +92,33 @@ export const handlers = {
         destCoords = { longitude, latitude };
       }
 
+      // 경유지 처리
+      if (waypoints.length > 5) {
+        throw new Error('경유지는 최대 5개까지만 지원됩니다.');
+      }
+
+      for (const waypoint of waypoints) {
+        if (!isCoordinates(waypoint)) {
+          console.log('Searching coordinates for waypoint:', waypoint);
+          const result = await client.searchAddress(waypoint);
+          if (!result) {
+            throw new Error(`경유지 주소를 찾을 수 없습니다: ${waypoint}`);
+          }
+          waypointCoords.push(result);
+          console.log('Waypoint coordinates found:', result);
+        } else {
+          const [longitude, latitude] = waypoint.split(',').map(Number);
+          if (isNaN(longitude) || isNaN(latitude)) {
+            throw new Error(`잘못된 경유지 좌표 형식: ${waypoint}`);
+          }
+          waypointCoords.push({ longitude, latitude });
+        }
+      }
+
       console.log('Requesting car route with coordinates:', {
         origin: originCoords,
         destination: destCoords,
+        waypoints: waypointCoords,
         priority,
         carFuel,
         carHipass
@@ -102,6 +127,7 @@ export const handlers = {
       const result = await client.findCarRoute({
         origin: originCoords,
         destination: destCoords,
+        waypoints: waypointCoords,
         priority,
         carFuel,
         carHipass

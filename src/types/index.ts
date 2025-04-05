@@ -8,6 +8,7 @@ export interface Coordinates {
 export interface CarRouteParams {
   origin: Coordinates;
   destination: Coordinates;
+  waypoints?: Coordinates[];  // 최대 5개의 경유지 지원
   priority?: 'RECOMMEND' | 'TIME' | 'DISTANCE';
   carFuel?: 'GASOLINE' | 'DIESEL' | 'LPG' | 'HYBRID' | 'ELECTRIC';
   carHipass?: boolean;

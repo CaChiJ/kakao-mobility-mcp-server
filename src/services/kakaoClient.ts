@@ -37,6 +37,7 @@ export class KakaoMobilityClient {
         params: {
           origin: this.formatCoords(params.origin),
           destination: this.formatCoords(params.destination),
+          waypoints: params.waypoints?.map(wp => this.formatCoords(wp)).join(';'),
           priority: params.priority,
           car_fuel: params.carFuel,
           car_hipass: params.carHipass
