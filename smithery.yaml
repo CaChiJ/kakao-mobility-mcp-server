@@ -1,6 +1,6 @@
 app:
   name: kakao-mobility-mcp-server
-  version: 1.0.1
+  version: 1.0.2
 
 build:
   type: docker
