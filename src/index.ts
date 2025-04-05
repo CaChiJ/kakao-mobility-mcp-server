@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
-import { KakaoMobilityClient } from './src/services/kakaoClient';
+import { KakaoMobilityClient } from './services/kakaoClient';
 
 // .env 파일 로드
 config();
