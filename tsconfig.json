@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*", "kakao-mobility-mcp/src/services/kakaoClient.ts", "kakao-mobility-mcp/src/types/index.ts", "kakao-mobility-mcp/index.ts"],
+  "exclude": ["node_modules", "dist"]
+} 

@@ -1,0 +1,25 @@
+{
+  "name": "kakao-mobility-mcp",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["kakao", "mobility", "mcp", "directions", "transit"],
+  "author": "",
+  "license": "ISC",
+  "description": "Kakao Mobility MCP Server for directions and transit information",
+  "dependencies": {
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.5",
+    "typescript": "^5.4.2",
+    "@types/node": "^20.11.25"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
+} 
