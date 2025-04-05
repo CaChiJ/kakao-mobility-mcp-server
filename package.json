@@ -9,17 +9,25 @@
     "dev": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["kakao", "mobility", "mcp", "directions", "transit"],
+  "keywords": [
+    "kakao",
+    "mobility",
+    "mcp",
+    "directions",
+    "transit"
+  ],
   "author": "",
   "license": "ISC",
   "description": "Kakao Mobility MCP Server for directions and transit information",
   "dependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^20.11.25",
     "axios": "^1.6.7",
     "dotenv": "^16.4.5",
-    "typescript": "^5.4.2",
-    "@types/node": "^20.11.25"
+    "express": "^5.1.0",
+    "typescript": "^5.4.2"
   },
   "devDependencies": {
     "ts-node": "^10.9.2"
   }
-} 
+}

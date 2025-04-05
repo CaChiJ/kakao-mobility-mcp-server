@@ -20,3 +20,25 @@ deploy:
   resources:
     memory: 512
     cpu: 1 
+
+# Smithery.ai configuration
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      kakaoRestApiKey:
+        type: string
+        description: "Kakao REST API 키"
+    required:
+      - kakaoRestApiKey
+  commandFunction: |-
+    (config) => ({
+      "command": "ts-node",
+      "args": [
+        "src/index.ts"
+      ],
+      "env": {
+        "KAKAO_REST_API_KEY": config.kakaoRestApiKey
+      }
+    }) 

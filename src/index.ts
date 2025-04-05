@@ -1,4 +1,5 @@
 import { config } from 'dotenv';
+import express from 'express';
 import { KakaoMobilityClient } from './services/kakaoClient';
 
 // .env 파일 로드
@@ -10,18 +11,65 @@ if (!kakaoApiKey) {
 }
 
 const client = new KakaoMobilityClient(kakaoApiKey);
+const app = express();
 
+app.use(express.json());
+
+// 엔드포인트 등록
+app.post('/mcp_kakao_mobility_car_route', async (req, res) => {
+  try {
+    const result = await handlers.mcp_kakao_mobility_car_route(req.body);
+    res.json(result);
+  } catch (error) {
+    console.error('Car route error:', error);
+    res.status(500).json({ error: 'Failed to find car route' });
+  }
+});
+
+app.post('/mcp_kakao_mobility_transit', async (req, res) => {
+  try {
+    const result = await handlers.mcp_kakao_mobility_transit(req.body);
+    res.json(result);
+  } catch (error) {
+    console.error('Transit route error:', error);
+    res.status(500).json({ error: 'Failed to find transit route' });
+  }
+});
+
+app.post('/mcp_kakao_mobility_bicycle', async (req, res) => {
+  try {
+    const result = await handlers.mcp_kakao_mobility_bicycle(req.body);
+    res.json(result);
+  } catch (error) {
+    console.error('Bicycle route error:', error);
+    res.status(500).json({ error: 'Failed to find bicycle route' });
+  }
+});
+
+app.post('/mcp_kakao_mobility_walk', async (req, res) => {
+  try {
+    const result = await handlers.mcp_kakao_mobility_walk(req.body);
+    res.json(result);
+  } catch (error) {
+    console.error('Walk route error:', error);
+    res.status(500).json({ error: 'Failed to find walk route' });
+  }
+});
+
+// 핸들러 정의
 export const handlers = {
   async mcp_kakao_mobility_car_route(params: any) {
     const { origin, destination, priority, carFuel, carHipass } = params;
+    const [originLng, originLat] = origin.split(',').map(Number);
+    const [destLng, destLat] = destination.split(',').map(Number);
     const result = await client.findCarRoute({
       origin: {
-        latitude: parseFloat(origin.split(',')[0]),
-        longitude: parseFloat(origin.split(',')[1])
+        longitude: originLng,
+        latitude: originLat
       },
       destination: {
-        latitude: parseFloat(destination.split(',')[0]),
-        longitude: parseFloat(destination.split(',')[1])
+        longitude: destLng,
+        latitude: destLat
       },
       priority,
       carFuel,
@@ -32,14 +80,16 @@ export const handlers = {
 
   async mcp_kakao_mobility_transit(params: any) {
     const { origin, destination, priority, departureTime } = params;
+    const [originLng, originLat] = origin.split(',').map(Number);
+    const [destLng, destLat] = destination.split(',').map(Number);
     const result = await client.findTransitRoute({
       origin: {
-        latitude: parseFloat(origin.split(',')[0]),
-        longitude: parseFloat(origin.split(',')[1])
+        longitude: originLng,
+        latitude: originLat
       },
       destination: {
-        latitude: parseFloat(destination.split(',')[0]),
-        longitude: parseFloat(destination.split(',')[1])
+        longitude: destLng,
+        latitude: destLat
       },
       priority,
       departureTime
@@ -49,14 +99,16 @@ export const handlers = {
 
   async mcp_kakao_mobility_bicycle(params: any) {
     const { origin, destination, priority } = params;
+    const [originLng, originLat] = origin.split(',').map(Number);
+    const [destLng, destLat] = destination.split(',').map(Number);
     const result = await client.findBicycleRoute({
       origin: {
-        latitude: parseFloat(origin.split(',')[0]),
-        longitude: parseFloat(origin.split(',')[1])
+        longitude: originLng,
+        latitude: originLat
       },
       destination: {
-        latitude: parseFloat(destination.split(',')[0]),
-        longitude: parseFloat(destination.split(',')[1])
+        longitude: destLng,
+        latitude: destLat
       },
       priority
     });
@@ -65,16 +117,24 @@ export const handlers = {
 
   async mcp_kakao_mobility_walk(params: any) {
     const { origin, destination } = params;
+    const [originLng, originLat] = origin.split(',').map(Number);
+    const [destLng, destLat] = destination.split(',').map(Number);
     const result = await client.findWalkRoute({
       origin: {
-        latitude: parseFloat(origin.split(',')[0]),
-        longitude: parseFloat(origin.split(',')[1])
+        longitude: originLng,
+        latitude: originLat
       },
       destination: {
-        latitude: parseFloat(destination.split(',')[0]),
-        longitude: parseFloat(destination.split(',')[1])
+        longitude: destLng,
+        latitude: destLat
       }
     });
     return result;
   }
-}; 
+};
+
+// 서버 시작
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+}); 

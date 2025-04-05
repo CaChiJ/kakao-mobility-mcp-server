@@ -16,6 +16,7 @@ export class KakaoMobilityClient {
   private client: AxiosInstance;
 
   constructor(apiKey: string) {
+    console.log('Initializing KakaoMobilityClient with API key:', apiKey);
     this.client = axios.create({
       baseURL: 'https://apis-navi.kakaomobility.com/v1',
       headers: {
@@ -30,25 +31,36 @@ export class KakaoMobilityClient {
   }
 
   async findCarRoute(params: CarRouteParams): Promise<{ summary: CarRouteSummary }> {
-    const response = await this.client.get('/directions', {
-      params: {
-        origin: this.formatCoords(params.origin),
-        destination: this.formatCoords(params.destination),
-        priority: params.priority,
-        car_fuel: params.carFuel,
-        car_hipass: params.carHipass
-      }
-    });
+    try {
+      console.log('Calling Kakao API with params:', params);
+      const requestConfig = {
+        params: {
+          origin: this.formatCoords(params.origin),
+          destination: this.formatCoords(params.destination),
+          priority: params.priority,
+          car_fuel: params.carFuel,
+          car_hipass: params.carHipass
+        }
+      };
+      console.log('Request config:', requestConfig);
+      
+      const response = await this.client.get('/directions', requestConfig);
+      console.log('Kakao API response:', response.data);
 
-    const route = response.data.routes[0];
-    return {
-      summary: {
-        distance: route.summary.distance,
-        duration: route.summary.duration,
-        tollFee: route.summary.fare.toll,
-        fuelPrice: route.summary.fare.fuel
-      }
-    };
+      const route = response.data.routes[0];
+      return {
+        summary: {
+          distance: route.summary.distance,
+          duration: route.summary.duration,
+          tollFee: route.summary.fare.toll,
+          fuelPrice: route.summary.fare.fuel
+        }
+      };
+    } catch (error: any) {
+      console.error('Error calling Kakao API:', error.response?.data || error.message);
+      console.error('Full error:', error);
+      throw error;
+    }
   }
 
   async findTransitRoute(params: TransitRouteParams): Promise<{
