@@ -1,4 +1,4 @@
-# Kakao Mobility & Kakao Map MCP 서버
+# Kakao Mobility & Kakao Map MCP Server
 
 [![MCP](https://img.shields.io/badge/MCP-Compliant-blue)](https://github.com/cursor-ai/model-context-protocol)
 
@@ -17,6 +17,15 @@
 - 도보, 자동차 등 다양한 이동 수단 지원
 - 실시간 교통 정보 반영
 
+## 시작하기
+1. [kakao developers](https://developers.kakao.com/)에 로그인합니다.
+2. 애플리케이션 생성
+  - '내 애플리케이션' > '애플리케이션 추가하기' > 애플리케이션 정보 입력 후 '저장'
+3. 카카오 맵 API 활성화
+  - 사이드바에서 '카카오 맵' 선택 > '활성화 설정' ON
+4. REST API Key 발급
+  - 사이드바에서 '앱 키' 선택 > 'REST API 키' 복사해 사용
+
 ## 제공 도구
 
 본 서버는 다음과 같은 MCP 도구들을 제공합니다:
@@ -24,6 +33,7 @@
 - `geocode`: 주소를 좌표 정보로 지오코딩
 - `direction_search_by_names`: 출발지와 목적지 주소로 길찾기
 - `direction_search_by_coordinates`: 출발지와 목적지 좌표로 길찾기
+- `address_search_by_place_name`: 장소 이름으로 주소 찾기
 
 ## 배포 정보
 
