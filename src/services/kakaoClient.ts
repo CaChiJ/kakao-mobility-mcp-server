@@ -94,44 +94,38 @@ export class KakaoMobilityClient {
     };
   }
 
-  async findBicycleRoute(params: BicycleRouteParams): Promise<{
-    summary: BicycleRouteSummary;
-  }> {
-    const response = await this.client.get('/directions/bicycle', {
-      params: {
-        origin: this.formatCoords(params.origin),
-        destination: this.formatCoords(params.destination),
-        priority: params.priority
-      }
-    });
+  // 주소 검색 메서드 추가
+  async searchAddress(query: string): Promise<Coordinates | null> {
+    try {
+      console.log(`Searching address: ${query}`);
+      const searchClient = axios.create({
+        baseURL: 'https://dapi.kakao.com',
+        headers: {
+          'Authorization': `KakaoAK ${process.env.KAKAO_REST_API_KEY}` // API 키 재확인
+        }
+      });
 
-    const route = response.data.routes[0];
-    return {
-      summary: {
-        distance: route.summary.distance,
-        duration: route.summary.duration,
-        ascent: route.summary.ascent,
-        descent: route.summary.descent
-      }
-    };
-  }
+      const response = await searchClient.get('/v2/local/search/address.json', {
+        params: { query }
+      });
 
-  async findWalkRoute(params: WalkRouteParams): Promise<{
-    summary: WalkRouteSummary;
-  }> {
-    const response = await this.client.get('/directions/walk', {
-      params: {
-        origin: this.formatCoords(params.origin),
-        destination: this.formatCoords(params.destination)
-      }
-    });
+      console.log('Address search response:', JSON.stringify(response.data, null, 2));
 
-    const route = response.data.routes[0];
-    return {
-      summary: {
-        distance: route.summary.distance,
-        duration: route.summary.duration
+      if (response.data.documents.length > 0) {
+        const doc = response.data.documents[0];
+        const coords: Coordinates = {
+          longitude: parseFloat(doc.x),
+          latitude: parseFloat(doc.y)
+        };
+        console.log('Coordinates found:', coords);
+        return coords;
+      } else {
+        console.log('Address not found');
+        return null;
       }
-    };
+    } catch (error: any) {
+      console.error('Error searching address:', error.response?.data || error.message);
+      throw new Error('Failed to search address');
+    }
   }
 } 

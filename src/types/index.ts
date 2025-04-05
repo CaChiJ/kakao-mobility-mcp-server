@@ -1,15 +1,15 @@
 // 공통 타입
 export interface Coordinates {
-  latitude: number;
   longitude: number;
+  latitude: number;
 }
 
 // 자동차 길찾기 관련 타입
 export interface CarRouteParams {
   origin: Coordinates;
   destination: Coordinates;
-  priority?: 'RECOMMENDED' | 'TIME' | 'DISTANCE';
-  carFuel?: 'GASOLINE' | 'DIESEL' | 'LPG' | 'ELECTRIC';
+  priority?: 'RECOMMEND' | 'TIME' | 'DISTANCE';
+  carFuel?: 'GASOLINE' | 'DIESEL' | 'LPG' | 'HYBRID' | 'ELECTRIC';
   carHipass?: boolean;
 }
 
@@ -17,14 +17,14 @@ export interface CarRouteSummary {
   distance: number;
   duration: number;
   tollFee: number;
-  fuelPrice: number;
+  fuelPrice?: number;
 }
 
 // 대중교통 길찾기 관련 타입
 export interface TransitRouteParams {
   origin: Coordinates;
   destination: Coordinates;
-  priority?: 'RECOMMEND' | 'MINIMUM_TIME' | 'MINIMUM_TRANSFER';
+  priority?: 'RECOMMEND' | 'MINIMUM_TIME' | 'MINIMUM_WALK' | 'MINIMUM_TRANSFER';
   departureTime?: string;
 }
 
@@ -36,7 +36,7 @@ export interface TransitRouteSummary {
 }
 
 export interface TransitStep {
-  type: 'BUS' | 'SUBWAY' | 'WALK';
+  type: string;
   distance: number;
   duration: number;
   routeName?: string;
