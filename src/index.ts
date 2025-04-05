@@ -57,7 +57,7 @@ server.tool(
 );
 
 server.tool(
-  "direction_search_by_names",
+  "direction_search_by_address",
   {
     originAddress: z.string(),
     destAddress: z.string(),
@@ -145,6 +145,35 @@ server.tool(
 
     const data = await response.json();
     
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify(data),
+      }],
+      isError: false,
+    };
+  }
+);
+
+
+server.tool(
+  "address_search_by_place_name",
+  {
+    placeName: z.string(),
+  },
+  async ({ placeName }: { placeName: string }) => {
+    const response = await fetch(
+      `https://dapi.kakao.com/v2/local/search/keyword?query=${placeName}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `KakaoAK ${process.env.KAKAO_REST_API_KEY}`,
+        },
+      }
+    );
+    const data = await response.json();
+
     return {
       content: [{
         type: "text",
