@@ -1,6 +1,7 @@
 # Kakao Mobility & Kakao Map MCP Server
 
 [![MCP](https://img.shields.io/badge/MCP-Compliant-blue)](https://github.com/cursor-ai/model-context-protocol)
+[![smithery badge](https://smithery.ai/badge/@CaChiJ/kakao-mobility-mcp-server)](https://smithery.ai/server/@CaChiJ/kakao-mobility-mcp-server)
 
 ## 소개
 
